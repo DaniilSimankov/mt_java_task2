@@ -8,5 +8,4 @@ module com.example.maximtechnologytask2 {
     opens com.example.maximtechnologytask2 to javafx.fxml;
     exports com.example.maximtechnologytask2;
     opens com.example.maximtechnologytask2.controllers to javafx.fxml;
-    opens com.example.maximtechnologytask2.example to javafx.fxml;
 }

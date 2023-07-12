@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.example.maximtechnologytask2.MainApplication;
-import com.example.maximtechnologytask2.example.HelloApplication;
 import com.example.maximtechnologytask2.models.Invoice;
 import com.example.maximtechnologytask2.models.enums.DocumentType;
 import javafx.fxml.FXML;

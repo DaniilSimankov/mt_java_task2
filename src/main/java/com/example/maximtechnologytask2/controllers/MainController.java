@@ -1,12 +1,5 @@
 package com.example.maximtechnologytask2.controllers;
 
-import java.io.*;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import com.example.maximtechnologytask2.MainApplication;
 import com.example.maximtechnologytask2.models.Document;
 import com.example.maximtechnologytask2.models.Invoice;
@@ -18,17 +11,33 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.*;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class MainController {
+
+    private int countModified;
 
     @FXML
     private ResourceBundle resources;
 
     @FXML
     private URL location;
+
+    @FXML
+    private VBox boxCheckBox;
 
     @FXML
     private Button buttonExit;
@@ -52,30 +61,39 @@ public class MainController {
     private Button buttonView;
 
     @FXML
+    private Button buttonDelete;
+
+    @FXML
     private Label report;
 
     @FXML
     void initialize() {
 
         buttonInvoice.setOnAction(actionEvent -> {
-//            buttonInvoice.getScene().getWindow().hide();
             openNewScene("invoice.fxml");
 
-            report.setText(MainApplication.documentsToString());
+            if (countModified != MainApplication.documents.size()) {
+                updateLabelAndCheckBox();
+                countModified++;
+            }
         });
 
         buttonPayment.setOnAction(actionEvent -> {
-//            buttonPayment.getScene().getWindow().hide();
             openNewScene("payment.fxml");
+            if (countModified != MainApplication.documents.size()) {
+                updateLabelAndCheckBox();
+                countModified++;
 
-            report.setText(MainApplication.documentsToString());
+            }
         });
 
         buttonRequest.setOnAction(actionEvent -> {
-//            buttonRequest.getScene().getWindow().hide();
             openNewScene("request.fxml");
 
-            report.setText(MainApplication.documentsToString());
+            if (countModified != MainApplication.documents.size()) {
+                updateLabelAndCheckBox();
+                countModified++;
+            }
         });
 
         buttonView.setOnAction(actionEvent -> {
@@ -131,7 +149,7 @@ public class MainController {
                                     .number((String) fields.get("Номер"))
                                     .username((String) fields.get("Пользователь"))
                                     .sum(Double.parseDouble((String) fields.get("Сумма")))
-                                    .date((LocalDate) fields.get("Дата"))
+                                    .date(LocalDate.parse((String) fields.get("Дата")))
                                     .employee((String) fields.get("Сотрудник"))
                                     .type(DocumentType.PAYMENT)
                                     .build();
@@ -175,12 +193,31 @@ public class MainController {
 
             }
 
-            report.setText(MainApplication.documentsToString());
+            if (countModified != MainApplication.documents.size()) {
+                updateLabelAndCheckBox();
+                countModified++;
+            }
+        });
+
+        buttonDelete.setOnAction(actionEvent -> {
+            Set<String> setCheckBox = boxCheckBox.getChildren().stream().filter(child -> ((CheckBox)child).isSelected()).map(node -> ((CheckBox)node).getText()).collect(Collectors.toSet());
+            MainApplication.documents.removeIf(document -> setCheckBox.contains(document.getNumber()));
+            boxCheckBox.getChildren().removeIf(checkBox -> setCheckBox.contains(((CheckBox)checkBox).getText()));
+
+            if (countModified != MainApplication.documents.size()) {
+                report.setText(MainApplication.documentsToString());
+            }
+            countModified = countModified - setCheckBox.size();
         });
 
         buttonExit.setOnAction(actionEvent -> {
             buttonExit.getScene().getWindow().hide();
         });
+    }
+
+    private void updateLabelAndCheckBox() {
+        report.setText(MainApplication.documentsToString());
+        createCheckBox(MainApplication.documents.get(MainApplication.documents.size() - 1).getNumber());
     }
 
     public void openNewScene(String window) {
@@ -197,6 +234,12 @@ public class MainController {
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.showAndWait();
+    }
+
+    private void createCheckBox(String name) {
+        CheckBox checkBox = new CheckBox(name);
+        checkBox.setStyle("-fx-background-color: transparent; -fx-text-fill: transparent;");
+        boxCheckBox.getChildren().add(checkBox);
     }
 
 }
